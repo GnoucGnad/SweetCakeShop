@@ -1,0 +1,17 @@
+# Java
+target/
+*.class
+
+# Eclipse / VS Code
+.settings/
+.vscode/
+.classpath
+.project
+
+# Python (from scripts)
+__pycache__/
+*.py[cod]
+
+# OS generated files
+.DS_Store
+Thumbs.db
