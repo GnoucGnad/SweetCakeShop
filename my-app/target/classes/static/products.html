@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm - Sweet Cake Shop</title>
+    <meta name="description" content="Khám phá bộ sưu tập bánh ngọt và bánh mặn đa dạng tại Sweet Cake Shop.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="navbar-brand"><span class="brand-icon">🧁</span> Sweet<span>Cake</span></a>
+            <ul class="navbar-nav" id="navbarNav">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="products.html">Sản phẩm</a></li>
+                <li><a href="products.html?category=1">Bánh ngọt</a></li>
+                <li><a href="products.html?category=2">Bánh mặn</a></li>
+            </ul>
+            <div class="navbar-actions">
+                <a href="cart.html" class="cart-btn">🛒<span class="cart-badge"></span></a>
+                <button class="navbar-toggle" id="navToggle"><span></span><span></span><span></span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 id="pageTitle">Tất Cả Sản Phẩm</h1>
+            <div class="breadcrumb">
+                <a href="index.html">Trang chủ</a>
+                <span>/</span>
+                <span id="breadcrumbCurrent">Sản phẩm</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Page -->
+    <section class="products-page">
+        <div class="container">
+            <div class="products-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-section">
+                        <h3>Danh mục</h3>
+                        <ul class="filter-list" id="categoryList">
+                            <li><a href="products.html" class="active" data-category="all">Tất cả <span class="filter-count" id="countAll">0</span></a></li>
+                            <li><a href="products.html?category=1" data-category="1">🍰 Bánh ngọt <span class="filter-count" id="countSweet">0</span></a></li>
+                            <li><a href="products.html?category=2" data-category="2">🥐 Bánh mặn <span class="filter-count" id="countSalty">0</span></a></li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section">
+                        <h3>Tìm kiếm</h3>
+                        <div class="search-bar">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Tên bánh...">
+                            <button class="btn btn-primary btn-sm" onclick="searchProducts()">🔍</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Products Grid -->
+                <div>
+                    <div class="products-toolbar">
+                        <span class="products-count" id="productsCount">Đang tải...</span>
+                        <select class="sort-select" id="sortSelect" onchange="sortProducts()">
+                            <option value="default">Mặc định</option>
+                            <option value="name-asc">Tên A-Z</option>
+                            <option value="name-desc">Tên Z-A</option>
+                            <option value="price-asc">Giá tăng dần</option>
+                            <option value="price-desc">Giá giảm dần</option>
+                            <option value="newest">Mới nhất</option>
+                        </select>
+                    </div>
+                    <div class="products-grid" id="productsGrid">
+                        <div class="loading-overlay"><div class="spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2026 SweetCake Shop. Đồ án GR1 - Đặng Đình Cường - MSSV: 20225795</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top">↑</button>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let allProducts = [];
+        let filteredProducts = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                allProducts = await Api.getProducts();
+                filteredProducts = [...allProducts];
+
+                // Count per category
+                document.getElementById('countAll').textContent = allProducts.length;
+                document.getElementById('countSweet').textContent = allProducts.filter(p => p.optionCakeId === 1).length;
+                document.getElementById('countSalty').textContent = allProducts.filter(p => p.optionCakeId === 2).length;
+
+                // Check URL params for category
+                const params = new URLSearchParams(window.location.search);
+                const category = params.get('category');
+                if (category) {
+                    filterByCategory(parseInt(category));
+                    // Update active link
+                    document.querySelectorAll('.filter-list a').forEach(a => {
+                        a.classList.remove('active');
+                        if (a.dataset.category === category) a.classList.add('active');
+                    });
+                    // Update page title
+                    const titles = { '1': 'Bánh Ngọt', '2': 'Bánh Mặn' };
+                    document.getElementById('pageTitle').textContent = titles[category] || 'Sản phẩm';
+                    document.getElementById('breadcrumbCurrent').textContent = titles[category] || 'Sản phẩm';
+                } else {
+                    renderProducts(filteredProducts);
+                }
+
+            } catch (e) {
+                document.getElementById('productsGrid').innerHTML =
+                    '<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;">Không thể tải sản phẩm.</p>';
+            }
+        });
+
+        function filterByCategory(categoryId) {
+            if (categoryId) {
+                filteredProducts = allProducts.filter(p => p.optionCakeId === categoryId);
+            } else {
+                filteredProducts = [...allProducts];
+            }
+            renderProducts(filteredProducts);
+        }
+
+        function searchProducts() {
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (keyword) {
+                filteredProducts = allProducts.filter(p =>
+                    p.cakeName.toLowerCase().includes(keyword) ||
+                    (p.description && p.description.toLowerCase().includes(keyword))
+                );
+            } else {
+                filteredProducts = [...allProducts];
+            }
+            renderProducts(filteredProducts);
+        }
+
+        // Search on Enter key
+        document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchProducts();
+        });
+
+        function sortProducts() {
+            const sort = document.getElementById('sortSelect').value;
+            const sorted = [...filteredProducts];
+            switch (sort) {
+                case 'name-asc': sorted.sort((a, b) => a.cakeName.localeCompare(b.cakeName)); break;
+                case 'name-desc': sorted.sort((a, b) => b.cakeName.localeCompare(a.cakeName)); break;
+                case 'price-asc': sorted.sort((a, b) => a.price - b.price); break;
+                case 'price-desc': sorted.sort((a, b) => b.price - a.price); break;
+                case 'newest': sorted.sort((a, b) => new Date(b.createAt) - new Date(a.createAt)); break;
+            }
+            renderProducts(sorted);
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            document.getElementById('productsCount').textContent = `Hiển thị ${products.length} sản phẩm`;
+
+            if (products.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;padding:3rem;">Không tìm thấy sản phẩm nào.</p>';
+                return;
+            }
+            grid.innerHTML = products.map(p => App.createProductCard(p)).join('');
+        }
+    </script>
+</body>
+</html>

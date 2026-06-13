@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-06-10T20:05:00.084695Z",
+  "entries": [
+    "api-design-principles",
+    "api-patterns",
+    "app-store-optimization",
+    "backend-dev-guidelines",
+    "clean-code",
+    "concise-planning",
+    "database-design",
+    "docs",
+    "flutter-expert",
+    "form-cro",
+    "frontend-developer",
+    "ios-developer",
+    "java-pro",
+    "lint-and-validate",
+    "mobile-developer",
+    "nextjs-best-practices",
+    "react-best-practices",
+    "react-native-architecture",
+    "react-patterns",
+    "senior-fullstack",
+    "seo-audit",
+    "systematic-debugging",
+    "tailwind-patterns",
+    "ui-ux-pro-max"
+  ]
+}
